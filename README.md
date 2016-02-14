@@ -1,15 +1,8 @@
-# d3-timeline
+# audio-line
 
-YOUR DESCRIPTION HERE. Replace all instances of `timeline` in this file with the name of your new plugin.
+A small example for D3 4.0 based audio visualisation
 
 ## Installing
 
-If you use NPM, `npm install d3-timeline`. Otherwise, download the [latest release](https://github.com/d3/d3-timeline/releases/latest).
-
-## API Reference
-
-YOUR API DOCUMENTATION HERE. Use bold for symbols (such as constructor and method names) and italics for instances. See the other D3 modules for examples.
-
-<a href="#timeline" name="timeline">#</a> <b>timeline</b>()
-
-Computes the answer to the ultimate question of life, the universe, and everything.
+If you use NPM, use this: 
+`npm install https://github.com/monfera/audio-line`

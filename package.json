@@ -1,22 +1,22 @@
 {
-  "name": "d3-timeline",
+  "name": "audio-line",
   "version": "0.0.1",
   "description": "{DESCRIPTION}",
   "keywords": [
     "d3"
   ],
   "license": "BSD-3-Clause",
-  "main": "build/d3-timeline.js",
+  "main": "build/audio-line.js",
   "jsnext:main": "index",
-  "homepage": "https://github.com/{USERNAME}/d3-timeline",
+  "homepage": "https://github.com/monfera/audio-line",
   "repository": {
     "type": "git",
-    "url": "https://github.com/{USERNAME}/d3-timeline.git"
+    "url": "https://github.com/monfera/audio-line.git"
   },
   "scripts": {
-    "pretest": "mkdir -p build && node -e 'process.stdout.write(\"var version = \\\"\" + require(\"./package.json\").version + \"\\\"; export * from \\\"../index\\\"; export {version};\");' > build/bundle.js && rollup -f umd -n d3_timeline -o build/d3-timeline.js -- build/bundle.js",
+    "pretest": "mkdir -p build && node -e 'process.stdout.write(\"var version = \\\"\" + require(\"./package.json\").version + \"\\\"; export * from \\\"../index\\\"; export {version};\");' > build/bundle.js && rollup -f umd -n d3_timeline -o build/audio-line.js -- build/bundle.js",
     "test": "faucet `find test -name '*-test.js'`",
-    "prepublish": "npm run test && uglifyjs build/d3-timeline.js -c -m -o build/d3-timeline.min.js && rm -f build/d3-timeline.zip && zip -j build/d3-timeline.zip -- LICENSE README.md build/d3-timeline.js build/d3-timeline.min.js"
+    "prepublish": "npm run test && uglifyjs build/audio-line.js -c -m -o build/audio-line.min.js && rm -f build/audio-line.zip && zip -j build/audio-line.zip -- LICENSE README.md build/audio-line.js build/audio-line.min.js"
   },
   "devDependencies": {
     "faucet": "0.0",
