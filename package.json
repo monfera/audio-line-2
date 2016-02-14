@@ -14,7 +14,7 @@
     "url": "https://github.com/monfera/audio-line.git"
   },
   "scripts": {
-    "pretest": "mkdir -p build && node -e 'process.stdout.write(\"var version = \\\"\" + require(\"./package.json\").version + \"\\\"; export * from \\\"../index\\\"; export {version};\");' > build/bundle.js && rollup -f umd -n d3_timeline -o build/audio-line.js -- build/bundle.js",
+    "pretest": "mkdir -p build && node -e 'process.stdout.write(\"var version = \\\"\" + require(\"./package.json\").version + \"\\\"; export * from \\\"../index\\\"; export {version};\");' > build/bundle.js && rollup -f umd -g d3-shape:d3_shape,d3-timer:d3_timer,d3-scale:d3_scale -n d3_timeline -o build/audio-line.js -- build/bundle.js",
     "test": "faucet `find test -name '*-test.js'`",
     "prepublish": "npm run test && uglifyjs build/audio-line.js -c -m -o build/audio-line.min.js && rm -f build/audio-line.zip && zip -j build/audio-line.zip -- LICENSE README.md build/audio-line.js build/audio-line.min.js"
   },
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "d3-scale": "^0.6.1",
-    "d3-shape": "^0.5.1"
+    "d3-shape": "^0.5.1",
+    "d3-timer": "^0.4.0"
   }
 }
