@@ -1,0 +1,31 @@
+{
+  "name": "d3-timeline",
+  "version": "0.0.1",
+  "description": "{DESCRIPTION}",
+  "keywords": [
+    "d3"
+  ],
+  "license": "BSD-3-Clause",
+  "main": "build/d3-timeline.js",
+  "jsnext:main": "index",
+  "homepage": "https://github.com/{USERNAME}/d3-timeline",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/{USERNAME}/d3-timeline.git"
+  },
+  "scripts": {
+    "pretest": "mkdir -p build && node -e 'process.stdout.write(\"var version = \\\"\" + require(\"./package.json\").version + \"\\\"; export * from \\\"../index\\\"; export {version};\");' > build/bundle.js && rollup -f umd -n d3_timeline -o build/d3-timeline.js -- build/bundle.js",
+    "test": "faucet `find test -name '*-test.js'`",
+    "prepublish": "npm run test && uglifyjs build/d3-timeline.js -c -m -o build/d3-timeline.min.js && rm -f build/d3-timeline.zip && zip -j build/d3-timeline.zip -- LICENSE README.md build/d3-timeline.js build/d3-timeline.min.js"
+  },
+  "devDependencies": {
+    "faucet": "0.0",
+    "rollup": "0.25",
+    "tape": "4",
+    "uglify-js": "2"
+  },
+  "dependencies": {
+    "d3-scale": "^0.6.1",
+    "d3-shape": "^0.5.1"
+  }
+}
