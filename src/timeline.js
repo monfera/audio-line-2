@@ -1,4 +1,4 @@
-import {timer} from "d3-timer";
+import {timer} from "d3-timer"
 
 export default function() {
 
@@ -137,5 +137,5 @@ export default function() {
     }
   )
 
-  return 42;
-};
+  return 42
+}

@@ -14,13 +14,15 @@
     "url": "https://github.com/monfera/audio-line.git"
   },
   "scripts": {
-    "pretest": "mkdir -p build && node -e 'process.stdout.write(\"var version = \\\"\" + require(\"./package.json\").version + \"\\\"; export * from \\\"../index\\\"; export {version};\");' > build/bundle.js && rollup -f umd -c d3-timer:d3_timer -n timeline -o build/audio-line.js -- build/bundle.js",
+    "pretest": "mkdir -p build && node -e 'process.stdout.write(\"var version = \\\"\" + require(\"./package.json\").version + \"\\\"; export * from \\\"../index\\\"; export {version};\");' > build/bundle.js && rollup -c",
     "test": "faucet `find test -name '*-test.js'`",
     "prepublish": "npm run test && uglifyjs build/audio-line.js -c -m -o build/audio-line.min.js && rm -f build/audio-line.zip && zip -j build/audio-line.zip -- LICENSE README.md build/audio-line.js build/audio-line.min.js"
   },
   "devDependencies": {
     "faucet": "0.0",
     "rollup": "0.25",
+    "rollup-plugin-json": "^2.0.0",
+    "rollup-plugin-node-resolve": "^1.4.0",
     "tape": "4",
     "uglify-js": "2"
   },
