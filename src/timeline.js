@@ -1,4 +1,6 @@
 import {timer} from "d3-timer"
+import {line, curveCatmullRom} from "d3-shape"
+import {scaleLinear} from "d3-scale"
 
 export default function() {
 
@@ -20,6 +22,10 @@ export default function() {
     return document.createElement(tagName)
   }
 
+  function createSVG(tagName) {
+    return document.createElementNS("http://www.w3.org/2000/svg", tagName)
+  }
+
   function append(parentElement, newChildElement) {
     parentElement.appendChild(newChildElement)
   }
@@ -30,6 +36,10 @@ export default function() {
 
   function attr(element, attribute, value) {
     element.setAttribute(attribute, value)
+  }
+
+  function attrSVG(element, attribute, value) {
+    element.setAttributeNS("http://www.w3.org/2000/svg", attribute, value)
   }
 
   function style(element, property, value) {
@@ -54,6 +64,25 @@ export default function() {
   style(canvas, 'width', 100 + '%')
   style(canvas, 'height', 100 + '%')
 
+  const svg = createSVG('svg')
+  append(body, svg)
+
+  attr(svg, 'width', width)
+  attr(svg, 'height', height)
+
+  style(svg, 'width', 100 + '%')
+  style(svg, 'height', 100 + '%')
+  style(svg, 'position', 'absolute')
+  style(svg, 'top', 0)
+  style(svg, 'left', 0)
+
+  const svgLine = createSVG('path')
+  append(svg, svgLine)
+
+  style(svgLine, 'fill', 'none')
+  style(svgLine, 'stroke', 'black')
+  style(svgLine, 'stroke-width', '1px')
+
   const canvasContext = canvas.getContext('2d')
 
   /*
@@ -76,7 +105,7 @@ export default function() {
   canvasContext.strokeStyle = 'rgba(0,0,0,1)'
   canvasContext.fillStyle = 'rgba(255,255,255,.1)'
 
-  function renderOnCanvas(context, frequencyData) {
+  function renderCircles(context, frequencyData) {
 
     var i, j
 
@@ -109,23 +138,46 @@ export default function() {
     || navigator.mozGetUserMedia
   const audioApi = new AudioContext()
 
+  const fftSize = 2048
+
+  const fArraySize = fftSize / 2
+
+  const binCount = 100
+
   function makeAnalyser(source) {
     const analyser = audioApi.createAnalyser()
-    analyser.fftSize = 2048
-    analyser.smoothingTimeConstant = 0.5
+    analyser.fftSize = fftSize
+    analyser.smoothingTimeConstant = 0.9
     source.connect(analyser)
     return analyser
+  }
+
+  var lineScaleX = scaleLinear().domain([0, binCount]).range([0, width])
+  var lineScaleY = scaleLinear().domain([0, 255]).range([height - 20, 0])
+  var xIndex = Array.apply(Array, new Array(binCount))
+    .map(function(d, i) {return i})
+  var lineX = xIndex
+    .map(lineScaleX)
+
+  function renderLine (svgLine, frequencyData) {
+    var pathMaker = line()
+      .curve(curveCatmullRom, 0.5) // which is the default value anyway: centripetal
+      .x(function (i) {return lineX[i]})
+      .y(function (i) {return lineScaleY(frequencyData[i])})
+    var path = pathMaker(xIndex)
+    attr(svgLine, "d", path)
   }
 
   function onStream(stream) {
     const source = audioApi.createMediaStreamSource(stream)
     const analyser = makeAnalyser(source)
-    const frequencyData = new Uint8Array(1024)
+    const frequencyData = new Uint8Array(fArraySize)
     timer(function() {
-      // side effect: refresh frequencyData
+      // side effect: refresh into frequencyData
       analyser.getByteFrequencyData(frequencyData)
-      // side effect: rerender on canvas
-      renderOnCanvas(canvasContext, frequencyData)
+      // side effect: render
+      renderCircles(canvasContext, frequencyData)
+      renderLine(svgLine, frequencyData)
     })
   }
 
