@@ -1,6 +1,6 @@
 import {timer} from "d3-timer"
 import {line, curveCatmullRom} from "d3-shape"
-import {scaleLinear} from "d3-scale"
+//import {scaleLinear} from "d3-scale" // importing this imports way too much stuff due to the fluent style d3 is using
 
 export default function() {
 
@@ -152,8 +152,8 @@ export default function() {
     return analyser
   }
 
-  var lineScaleX = scaleLinear().domain([0, binCount]).range([0, width])
-  var lineScaleY = scaleLinear().domain([0, 255]).range([height - 20, 0])
+  var lineScaleX = function (x) {return x / binCount * width} //scaleLinear().domain([0, binCount]).range([0, width])
+  var lineScaleY = function (y) {return (height - 20) * (1 - y / 255)} //scaleLinear().domain([0, 255]).range([height - 20, 0])
   var xIndex = Array.apply(Array, new Array(binCount))
     .map(function(d, i) {return i})
   var lineX = xIndex
