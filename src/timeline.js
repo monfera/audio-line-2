@@ -101,6 +101,7 @@ export default function() {
     context.arc(x * s , y * s, r, 0, 2 * Math.PI)
   }
 
+/*
   function renderPath(context, moveTo, beziersToArray) {
     context.beginPath()
     context.moveTo.apply(context, moveTo)
@@ -109,6 +110,7 @@ export default function() {
     })
     context.stroke()
   }
+*/
 
   /*
    * Render the audio visualisation
@@ -176,20 +178,25 @@ export default function() {
     .map(lineScaleX)
 
   function renderLine (canvasContext, svgLine, frequencyData) {
-    var pathMaker = line()
+
+    var svgPathMaker = line()
       .curve(curveCatmullRom, 0.5) // which is the default value anyway: centripetal
       .x(function (i) {return lineX[i]})
       .y(function (i) {return lineScaleY(frequencyData[i])})
-    var path = pathMaker(xIndex)
-    var pathData = path.slice(1).split('C').map(function(f) {
-      return f.split(',').map(function(s) {
-        return parseFloat(s) * aaMultiple
-      })
-    })
-    var moveTo = pathData[0]
-    var beziersToArray = pathData.slice(1)
-    renderPath(canvasContext, moveTo, beziersToArray)
-    attr(svgLine, "d", path)
+
+    var canvasPathMaker =  line()
+      .curve(curveCatmullRom, 0.5) // which is the default value anyway: centripetal
+      .x(function (i) {return lineX[i] * aaMultiple})
+      .y(function (i) {return lineScaleY(frequencyData[i]) * aaMultiple})
+      .context(canvasContext)
+
+    // Draw the curve on the Canvas
+    canvasContext.beginPath()
+    canvasPathMaker(xIndex)
+    canvasContext.stroke()
+
+    // Draw the curve as an SVG path
+    attr(svgLine, "d", svgPathMaker(xIndex))
   }
 
   function onStream(stream) {
