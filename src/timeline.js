@@ -63,6 +63,9 @@ export default function() {
 
   style(canvas, 'width', 100 + '%')
   style(canvas, 'height', 100 + '%')
+  style(canvas, 'position', 'absolute')
+  style(canvas, 'top', 0)
+  style(canvas, 'left', 0)
 
   const svg = createSVG('svg')
   append(body, svg)
@@ -80,8 +83,8 @@ export default function() {
   append(svg, svgLine)
 
   style(svgLine, 'fill', 'none')
-  style(svgLine, 'stroke', 'black')
-  style(svgLine, 'stroke-width', '1px')
+  style(svgLine, 'stroke', 'red')
+  style(svgLine, 'stroke-width', '2px')
 
   const canvasContext = canvas.getContext('2d')
 
@@ -92,10 +95,19 @@ export default function() {
   const lineWidth = 0.5
   const radius = 31
 
-  function render(context, x, y, radius, s) {
+  function renderCircle(context, x, y, radius, s) {
     const r = radius * s
     context.moveTo(x * s + r, y * s)
     context.arc(x * s , y * s, r, 0, 2 * Math.PI)
+  }
+
+  function renderPath(context, moveTo, beziersToArray) {
+    context.beginPath()
+    context.moveTo.apply(context, moveTo)
+    beziersToArray.forEach(function (b) {
+      context.bezierCurveTo.apply(context, b)
+    })
+    context.stroke()
   }
 
   /*
@@ -105,19 +117,15 @@ export default function() {
   canvasContext.strokeStyle = 'rgba(0,0,0,1)'
   canvasContext.fillStyle = 'rgba(255,255,255,.1)'
 
-  function renderCircles(context, frequencyData) {
+  function renderCircleHexGrid(context, frequencyData) {
 
     var i, j
 
     context.lineWidth = aaMultiple * lineWidth
-    context.fillRect(
-      0, 0,
-      width * aaMultiple, height * aaMultiple
-    )
     context.beginPath()
     for(j = 0; j < 10; j++) {
       for(i = 0; i < 10; i++) {
-        render(
+        renderCircle(
           context,
           (i + 1) * 2 * radius + (j % 2) * radius,
           (9 - j + 1) * 2 * Math.sqrt(Math.pow(radius, 2) - Math.pow(radius / 2, 2)),
@@ -129,6 +137,14 @@ export default function() {
     context.stroke()
   }
 
+  function fadeCanvas(context) {
+
+    context.fillRect(
+      0, 0,
+      width * aaMultiple, height * aaMultiple
+    )
+  }
+
   /*
    * Audio input and analyser
    */
@@ -138,9 +154,9 @@ export default function() {
     || navigator.mozGetUserMedia
   const audioApi = new AudioContext()
 
-  const fftSize = 2048
+  const fftSize = 1024
 
-  const fArraySize = fftSize / 2
+  const fArraySize = fftSize
 
   const binCount = 100
 
@@ -153,18 +169,26 @@ export default function() {
   }
 
   var lineScaleX = function (x) {return x / binCount * width} //scaleLinear().domain([0, binCount]).range([0, width])
-  var lineScaleY = function (y) {return (height - 20) * (1 - y / 255)} //scaleLinear().domain([0, 255]).range([height - 20, 0])
+  var lineScaleY = function (y) {return height / 4 + height / 2 * (1 - y / 255)} //scaleLinear().domain([0, 255]).range([height - 20, 0])
   var xIndex = Array.apply(Array, new Array(binCount))
     .map(function(d, i) {return i})
   var lineX = xIndex
     .map(lineScaleX)
 
-  function renderLine (svgLine, frequencyData) {
+  function renderLine (canvasContext, svgLine, frequencyData) {
     var pathMaker = line()
       .curve(curveCatmullRom, 0.5) // which is the default value anyway: centripetal
       .x(function (i) {return lineX[i]})
       .y(function (i) {return lineScaleY(frequencyData[i])})
     var path = pathMaker(xIndex)
+    var pathData = path.slice(1).split('C').map(function(f) {
+      return f.split(',').map(function(s) {
+        return parseFloat(s) * aaMultiple
+      })
+    })
+    var moveTo = pathData[0]
+    var beziersToArray = pathData.slice(1)
+    renderPath(canvasContext, moveTo, beziersToArray)
     attr(svgLine, "d", path)
   }
 
@@ -176,8 +200,9 @@ export default function() {
       // side effect: refresh into frequencyData
       analyser.getByteFrequencyData(frequencyData)
       // side effect: render
-      renderCircles(canvasContext, frequencyData)
-      renderLine(svgLine, frequencyData)
+      fadeCanvas(canvasContext)
+      //renderCircleHexGrid(canvasContext, frequencyData)
+      renderLine(canvasContext, svgLine, frequencyData)
     })
   }
 
